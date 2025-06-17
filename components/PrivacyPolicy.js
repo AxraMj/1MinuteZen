@@ -38,7 +38,7 @@ export default function PrivacyPolicy({ onClose }) {
 
         <Text style={styles.sectionTitle}>Contact Us</Text>
         <Text style={styles.text}>
-          If you have any questions about this Privacy Policy, please contact us at support@1minutezen.com
+          If you have any questions about this Privacy Policy, please contact us at contact@axra.site
         </Text>
       </ScrollView>
     </SafeAreaView>

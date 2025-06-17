@@ -1,0 +1,64 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: |
+        npm install
+        npx expo install --fix
+
+    - name: Run ESLint
+      run: |
+        npm install eslint eslint-plugin-react eslint-plugin-react-native --save-dev
+        npx eslint . --ext .js,.jsx
+
+    - name: Check for TypeScript errors
+      run: |
+        npm install typescript @types/react @types/react-native --save-dev
+        npx tsc --noEmit
+
+    - name: Run Tests
+      run: npm test
+
+    - name: Build Android
+      run: |
+        npx expo prebuild --platform android
+        cd android
+        ./gradlew assembleRelease
+
+    - name: Build iOS
+      if: runner.os == 'macOS'
+      run: |
+        npx expo prebuild --platform ios
+        cd ios
+        xcodebuild -workspace 1MinuteZen.xcworkspace -scheme 1MinuteZen -configuration Release
+
+    - name: Upload Android Build
+      uses: actions/upload-artifact@v3
+      with:
+        name: android-build
+        path: android/app/build/outputs/apk/release/
+
+    - name: Upload iOS Build
+      if: runner.os == 'macOS'
+      uses: actions/upload-artifact@v3
+      with:
+        name: ios-build
+        path: ios/build/ 

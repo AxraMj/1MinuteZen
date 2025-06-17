@@ -13,7 +13,6 @@ import Animated, {
 export default function BreathingCircle({ isActive }) {
   const scale = useSharedValue(1);
   const opacity = useSharedValue(0.8);
-  const phaseRef = useRef('');
   const animationStartTime = useRef(null);
 
   // Animated styles
@@ -110,7 +109,10 @@ export default function BreathingCircle({ isActive }) {
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.outerCircle, circleStyle]}>
+      <Animated.View
+        testID="breathing-circle"
+        style={[styles.outerCircle, circleStyle]}
+      >
         <Animated.View style={[styles.innerCircle, innerCircleStyle]} />
       </Animated.View>
       
