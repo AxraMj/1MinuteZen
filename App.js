@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, StatusBar, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import BreathingCircle from './components/BreathingCircle';
+import PrivacyPolicy from './components/PrivacyPolicy';
 
 export default function App() {
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [timeLeft, setTimeLeft] = useState(60);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
 
   useEffect(() => {
     let timer;
@@ -118,8 +120,25 @@ export default function App() {
             </View>
           )}
         </View>
+
+        {/* Privacy Policy Link */}
+        <TouchableOpacity
+          style={styles.privacyLink}
+          onPress={() => setShowPrivacyPolicy(true)}
+        >
+          <Text style={styles.privacyLinkText}>Privacy Policy</Text>
+        </TouchableOpacity>
         
       </SafeAreaView>
+
+      {/* Privacy Policy Modal */}
+      <Modal
+        visible={showPrivacyPolicy}
+        animationType="slide"
+        presentationStyle="pageSheet"
+      >
+        <PrivacyPolicy onClose={() => setShowPrivacyPolicy(false)} />
+      </Modal>
     </View>
   );
 }
@@ -220,5 +239,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#ffffff',
     fontWeight: '500',
+  },
+  privacyLink: {
+    padding: 16,
+    alignItems: 'center',
+  },
+  privacyLinkText: {
+    fontSize: 14,
+    color: '#666666',
+    textDecorationLine: 'underline',
   },
 });
