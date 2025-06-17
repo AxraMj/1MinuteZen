@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18.x'
         cache: 'npm'
@@ -51,14 +51,16 @@ jobs:
         xcodebuild -workspace 1MinuteZen.xcworkspace -scheme 1MinuteZen -configuration Release
 
     - name: Upload Android Build
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: android-build
         path: android/app/build/outputs/apk/release/
+        compression-level: 9
 
     - name: Upload iOS Build
       if: runner.os == 'macOS'
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ios-build
-        path: ios/build/ 
+        path: ios/build/
+        compression-level: 9 
