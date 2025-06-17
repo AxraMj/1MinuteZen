@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Animated, {
   useSharedValue,
@@ -7,46 +7,52 @@ import Animated, {
   withRepeat,
   withSequence,
   Easing,
+  cancelAnimation,
 } from 'react-native-reanimated';
 
-// BreathingCircle component for the 4-4-4-4 breathing animation
 export default function BreathingCircle({ isActive }) {
-  // Shared values for animations
   const scale = useSharedValue(1);
-  const opacity = useSharedValue(0.7);
+  const opacity = useSharedValue(0.8);
+  const phaseRef = useRef('');
+  const animationStartTime = useRef(null);
 
-  // Animation styles
+  // Animated styles
   const circleStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
     opacity: opacity.value,
   }));
 
   const innerCircleStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: 1 / scale.value }],
-    opacity: opacity.value,
+    opacity: 0.3,
   }));
 
   useEffect(() => {
     if (isActive) {
-      // Enhanced 4-4-4-4 breathing cycle animation
+      animationStartTime.current = Date.now();
+      
+      // 4-4-4-4 breathing cycle (16 seconds total)
       scale.value = withRepeat(
         withSequence(
-          withTiming(1.5, {
+          // Inhale (4 seconds)
+          withTiming(1.4, {
             duration: 4000,
-            easing: Easing.bezierFn(0.4, 0, 0.2, 1),
-          }), // Inhale: smooth expansion
-          withTiming(1.5, {
-            duration: 4000,
-            easing: Easing.linear,
-          }), // Hold: maintain size
-          withTiming(1, {
-            duration: 4000,
-            easing: Easing.bezierFn(0.4, 0, 0.2, 1),
-          }), // Exhale: smooth contraction
-          withTiming(1, {
+            easing: Easing.bezier(0.4, 0, 0.2, 1),
+          }),
+          // Hold (4 seconds)
+          withTiming(1.4, {
             duration: 4000,
             easing: Easing.linear,
-          }) // Hold: maintain size
+          }),
+          // Exhale (4 seconds)
+          withTiming(1, {
+            duration: 4000,
+            easing: Easing.bezier(0.4, 0, 0.2, 1),
+          }),
+          // Hold (4 seconds)
+          withTiming(1, {
+            duration: 4000,
+            easing: Easing.linear,
+          })
         ),
         -1,
         false
@@ -55,36 +61,70 @@ export default function BreathingCircle({ isActive }) {
       // Subtle opacity animation
       opacity.value = withRepeat(
         withSequence(
+          withTiming(1, { duration: 4000 }),
           withTiming(0.9, { duration: 4000 }),
-          withTiming(0.7, { duration: 4000 }),
-          withTiming(0.9, { duration: 4000 }),
-          withTiming(0.7, { duration: 4000 })
+          withTiming(1, { duration: 4000 }),
+          withTiming(0.9, { duration: 4000 })
         ),
         -1,
         false
       );
     } else {
-      // Reset animations
-      scale.value = withTiming(1, { duration: 500 });
-      opacity.value = withTiming(0.7, { duration: 500 });
+      // Cancel animations properly to prevent the error
+      cancelAnimation(scale);
+      cancelAnimation(opacity);
+      
+      // Reset to initial state
+      scale.value = withTiming(1, { 
+        duration: 500,
+        easing: Easing.bezier(0.4, 0, 0.2, 1),
+      });
+      opacity.value = withTiming(0.8, { 
+        duration: 500 
+      });
+      
+      animationStartTime.current = null;
     }
-  }, [isActive]);
 
-  // Breathing phase text based on timing
-  const getBreathingText = () => {
-    const time = (Date.now() % 16000) / 1000; // Cycle every 16 seconds
-    if (time < 4) return 'Breathe In';
-    if (time < 8) return 'Hold';
-    if (time < 12) return 'Breathe Out';
+    // Cleanup function
+    return () => {
+      if (!isActive) {
+        cancelAnimation(scale);
+        cancelAnimation(opacity);
+      }
+    };
+  }, [isActive, scale, opacity]);
+
+  // Get current breathing phase
+  const getBreathingPhase = () => {
+    if (!isActive || !animationStartTime.current) return '';
+    
+    const elapsed = (Date.now() - animationStartTime.current) % 16000;
+    const seconds = elapsed / 1000;
+    
+    if (seconds < 4) return 'Breathe in';
+    if (seconds < 8) return 'Hold';
+    if (seconds < 12) return 'Breathe out';
     return 'Hold';
   };
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.circle, circleStyle]}>
+      <Animated.View style={[styles.outerCircle, circleStyle]}>
         <Animated.View style={[styles.innerCircle, innerCircleStyle]} />
       </Animated.View>
-      {isActive && <Text style={styles.text}>{getBreathingText()}</Text>}
+      
+      {isActive && (
+        <Text style={styles.phaseText}>
+          {getBreathingPhase()}
+        </Text>
+      )}
+      
+      {!isActive && (
+        <Text style={styles.readyText}>
+          Ready to breathe
+        </Text>
+      )}
     </View>
   );
 }
@@ -93,36 +133,42 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    height: 240,
+    height: 200,
   },
-  circle: {
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    backgroundColor: '#3498DB',
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  innerCircle: {
+  outerCircle: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    borderWidth: 8,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: '#007AFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#007AFF',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  text: {
-    marginTop: 24,
-    fontSize: 24,
-    color: '#2C3E50',
-    fontWeight: '600',
-    letterSpacing: 0.5,
+  innerCircle: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#ffffff',
+  },
+  phaseText: {
+    marginTop: 32,
+    fontSize: 18,
+    color: '#1a1a1a',
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  readyText: {
+    marginTop: 32,
+    fontSize: 16,
+    color: '#666666',
+    fontWeight: '400',
+    textAlign: 'center',
   },
 });

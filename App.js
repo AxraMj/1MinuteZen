@@ -2,137 +2,123 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { LinearGradient } from 'expo-linear-gradient';
 import BreathingCircle from './components/BreathingCircle';
 
-// Main App component
 export default function App() {
   const [isTimerRunning, setIsTimerRunning] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(60); // 1 minute in seconds
+  const [timeLeft, setTimeLeft] = useState(60);
   const [isCompleted, setIsCompleted] = useState(false);
 
-  // Timer logic
   useEffect(() => {
     let timer;
-    const handleTimer = async () => {
-      if (isTimerRunning && timeLeft > 0) {
-        timer = setInterval(() => {
-          setTimeLeft((prev) => prev - 1);
-        }, 1000);
-      } else if (timeLeft === 0) {
-        setIsTimerRunning(false);
-        setIsCompleted(true);
-        try {
-          await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        } catch (error) {
-          console.log('Haptics not available:', error);
-        }
+    
+    if (isTimerRunning && timeLeft > 0) {
+      timer = setInterval(() => {
+        setTimeLeft((prev) => {
+          const newTime = prev - 1;
+          if (newTime <= 0) {
+            setIsTimerRunning(false);
+            setIsCompleted(true);
+            // Trigger haptic feedback
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+              .catch(error => console.log('Haptics not available:', error));
+            return 0;
+          }
+          return newTime;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (timer) {
+        clearInterval(timer);
       }
     };
-    
-    handleTimer();
-    return () => clearInterval(timer);
   }, [isTimerRunning, timeLeft]);
 
-  // Start the timer
   const startTimer = async () => {
     setIsTimerRunning(true);
     setIsCompleted(false);
     setTimeLeft(60);
     try {
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } catch (error) {
       console.log('Haptics not available:', error);
     }
   };
 
-  // Reset the timer
   const resetTimer = async () => {
     setIsTimerRunning(false);
     setIsCompleted(false);
     setTimeLeft(60);
     try {
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     } catch (error) {
       console.log('Haptics not available:', error);
     }
   };
 
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
-      <LinearGradient
-        colors={['#f8fcff', '#fff5e6']}
-        start={{ x: 0.5, y: 0.3 }}
-        end={{ x: 1, y: 1 }}
-        style={StyleSheet.absoluteFill}
-      />
+      <StatusBar barStyle="dark-content" backgroundColor="#F0F8FF" />
+      
       <SafeAreaView style={styles.safeArea}>
+        {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>1MinuteZen</Text>
           <Text style={styles.subtitle}>Mindful breathing for busy minds</Text>
         </View>
-        
+
+        {/* Main Content */}
         <View style={styles.content}>
           {isCompleted ? (
-            <View style={styles.completedContainer}>
-              <View style={styles.successIcon}>
+            <View style={styles.completedSection}>
+              <View style={styles.completedIcon}>
                 <Text style={styles.checkmark}>✓</Text>
               </View>
-              <Text style={styles.completedTitle}>Session Complete</Text>
-              <Text style={styles.completedText}>
-                Well done! You've taken a moment to center yourself.{'\n'}
-                How do you feel now?
+              <Text style={styles.completedTitle}>Well done</Text>
+              <Text style={styles.completedMessage}>
+                You completed your mindful minute
               </Text>
               <TouchableOpacity
-                style={styles.primaryButton}
+                style={styles.button}
                 onPress={resetTimer}
-                activeOpacity={0.8}
+                activeOpacity={0.7}
               >
-                <Text style={styles.primaryButtonText}>Start Another Session</Text>
+                <Text style={styles.buttonText}>Start again</Text>
               </TouchableOpacity>
             </View>
           ) : (
-            <View style={styles.sessionContainer}>
+            <View style={styles.sessionSection}>
               <BreathingCircle isActive={isTimerRunning} />
               
-              <View style={styles.timerContainer}>
-                <Text style={styles.timerLabel}>Time Remaining</Text>
-                <Text style={styles.timerText}>
-                  {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}
-                </Text>
-              </View>
-              
-              <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                  style={[
-                    styles.primaryButton,
-                    isTimerRunning ? styles.primaryButtonDisabled : null
-                  ]}
-                  onPress={startTimer}
-                  disabled={isTimerRunning}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.primaryButtonText}>
-                    {isTimerRunning ? 'Session in Progress' : 'Begin Mindful Minute'}
-                  </Text>
-                </TouchableOpacity>
-                
+              <View style={styles.timerSection}>
+                <Text style={styles.timer}>{formatTime(timeLeft)}</Text>
                 {isTimerRunning && (
-                  <Text style={styles.instructionText}>
-                    Follow the breathing circle and let your mind settle
-                  </Text>
+                  <Text style={styles.instruction}>Follow the circle</Text>
                 )}
               </View>
+
+              <TouchableOpacity
+                style={[styles.button, isTimerRunning && styles.buttonDisabled]}
+                onPress={startTimer}
+                disabled={isTimerRunning}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.buttonText}>
+                  {isTimerRunning ? 'In session...' : 'Start'}
+                </Text>
+              </TouchableOpacity>
             </View>
           )}
         </View>
         
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            Take a moment • Breathe deeply • Find your center
-          </Text>
-        </View>
       </SafeAreaView>
     </View>
   );
@@ -141,146 +127,98 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#F0F8FF',
   },
   safeArea: {
     flex: 1,
   },
   header: {
     alignItems: 'center',
-    paddingTop: 20,
-    paddingHorizontal: 20,
+    paddingTop: 40,
+    paddingBottom: 20,
   },
   title: {
-    fontSize: 42,
-    fontWeight: '700',
-    color: '#1a365d',
+    fontSize: 32,
+    fontWeight: '600',
+    color: '#2C3E50',
     marginBottom: 8,
-    letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: 16,
-    color: '#64748b',
-    fontWeight: '500',
-    letterSpacing: 0.3,
+    color: '#5D6D7E',
+    fontWeight: '400',
   },
   content: {
     flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: 24,
-  },
-  sessionContainer: {
     alignItems: 'center',
+    paddingHorizontal: 32,
   },
-  timerContainer: {
-    alignItems: 'center',
-    marginVertical: 32,
-  },
-  timerLabel: {
-    fontSize: 14,
-    color: '#64748b',
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 8,
-  },
-  timerText: {
-    fontSize: 56,
-    color: '#1a365d',
-    fontWeight: '200',
-    fontVariant: ['tabular-nums'],
-    letterSpacing: -2,
-  },
-  buttonContainer: {
+  sessionSection: {
     alignItems: 'center',
     width: '100%',
   },
-  primaryButton: {
-    backgroundColor: '#3b82f6',
-    paddingVertical: 18,
-    paddingHorizontal: 32,
-    borderRadius: 16,
-    shadowColor: '#3b82f6',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 6,
-    minWidth: 240,
-  },
-  primaryButtonDisabled: {
-    backgroundColor: '#94a3b8',
-    shadowColor: '#94a3b8',
-    shadowOpacity: 0.15,
-  },
-  primaryButtonText: {
-    fontSize: 18,
-    color: '#ffffff',
-    fontWeight: '600',
-    textAlign: 'center',
-    letterSpacing: 0.3,
-  },
-  instructionText: {
-    fontSize: 16,
-    color: '#64748b',
-    fontWeight: '500',
-    textAlign: 'center',
-    marginTop: 24,
-    lineHeight: 22,
-    fontStyle: 'italic',
-  },
-  completedContainer: {
+  completedSection: {
     alignItems: 'center',
-    paddingHorizontal: 20,
+    width: '100%',
   },
-  successIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#10b981',
+  completedIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#4CAF50',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 24,
-    shadowColor: '#10b981',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 6,
   },
   checkmark: {
-    fontSize: 36,
+    fontSize: 28,
     color: '#ffffff',
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
   completedTitle: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#1a365d',
-    marginBottom: 16,
-    letterSpacing: -0.5,
+    fontSize: 24,
+    fontWeight: '600',
+    color: '#1a1a1a',
+    marginBottom: 8,
   },
-  completedText: {
-    fontSize: 18,
-    color: '#64748b',
-    marginBottom: 32,
+  completedMessage: {
+    fontSize: 16,
+    color: '#666666',
     textAlign: 'center',
-    lineHeight: 26,
-    fontWeight: '500',
+    marginBottom: 40,
+    lineHeight: 24,
   },
-  footer: {
+  timerSection: {
     alignItems: 'center',
-    paddingBottom: 20,
-    paddingHorizontal: 20,
+    marginVertical: 40,
   },
-  footerText: {
+  timer: {
+    fontSize: 48,
+    fontWeight: '300',
+    color: '#1a1a1a',
+    fontVariant: ['tabular-nums'],
+    marginBottom: 16,
+  },
+  instruction: {
     fontSize: 14,
-    color: '#94a3b8',
+    color: '#666666',
+    fontWeight: '400',
+  },
+  button: {
+    backgroundColor: '#007AFF',
+    paddingVertical: 16,
+    paddingHorizontal: 48,
+    borderRadius: 25,
+    minWidth: 160,
+    alignItems: 'center',
+  },
+  buttonDisabled: {
+    backgroundColor: '#E0E0E0',
+  },
+  buttonText: {
+    fontSize: 16,
+    color: '#ffffff',
     fontWeight: '500',
-    textAlign: 'center',
-    letterSpacing: 0.5,
   },
 });
