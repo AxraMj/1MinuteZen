@@ -17,14 +17,14 @@
     ],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.1minutezen.app"
+      "bundleIdentifier": "com.oneminutezen.app"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#F0F8FF"
       },
-      "package": "com.1minutezen.app"
+      "package": "com.oneminutezen.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"
