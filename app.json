@@ -25,10 +25,23 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#F0F8FF"
       },
-      "package": "com.oneminutezen.app"
+      "package": "com.oneminutezen.app",
+      "versionCode": 1,
+      "permissions": [],
+      "amazon": {
+        "features": [
+          "TABLETS_OPTIMIZED"
+        ]
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "1757f51e-f8d0-4147-9589-2757d14b8841"
+      }
+    },
+    "owner": "axra"
   }
 }

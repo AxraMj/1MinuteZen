@@ -1,0 +1,46 @@
+{
+  "cli": {
+    "version": ">= 5.9.1",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk",
+        "image": "ubuntu-22.04-jdk-17-ndk-r21e",
+        "gradleCommand": ":app:assembleDebug"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk",
+        "image": "ubuntu-22.04-jdk-17-ndk-r21e",
+        "gradleCommand": ":app:assembleRelease",
+        "withoutCredentials": true
+      }
+    },
+    "production": {
+      "android": {
+        "buildType": "app-bundle",
+        "credentialsSource": "remote",
+        "image": "ubuntu-22.04-jdk-17-ndk-r21e"
+      }
+    },
+    "amazon": {
+      "android": {
+        "buildType": "apk",
+        "credentialsSource": "remote",
+        "image": "ubuntu-22.04-jdk-17-ndk-r21e",
+        "env": {
+          "PLATFORM": "amazon"
+        }
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+} 
