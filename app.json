@@ -10,7 +10,8 @@
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#F0F8FF",
-      "hideExponentText": false
+      "hideExponentText": false,
+      "minDurationMs": 2000
     },
     "assetBundlePatterns": [
       "**/*"
