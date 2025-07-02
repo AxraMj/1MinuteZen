@@ -12,7 +12,6 @@ jobs:
     env:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
       CI: 1
-      EXPO_NO_INTERACTIVE: 1
 
     steps:
     - uses: actions/checkout@v4
@@ -26,7 +25,7 @@ jobs:
     - name: Install Dependencies
       run: |
         npm install
-        npm install -g eas-cli expo-cli
+        npm install -g expo-cli
         npx expo install --fix
 
     - name: Run ESLint
@@ -42,15 +41,12 @@ jobs:
     - name: Run Tests
       run: npm test -- --passWithNoTests
 
-    - name: Configure Expo
-      run: |
-        echo "Configuring Expo token..."
-        echo ${{ secrets.EXPO_TOKEN }} | npx expo login --non-interactive
-
     - name: Create and Deploy Update
+      env:
+        EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
       run: |
         echo "Starting update deployment..."
-        npx expo publish --non-interactive
+        npx expo publish
         echo "Update deployed successfully!"
 
     - name: Post Setup Node.js
