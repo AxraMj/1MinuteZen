@@ -20,14 +20,16 @@
         "image": "ubuntu-22.04-jdk-17-ndk-r21e",
         "gradleCommand": ":app:assembleRelease",
         "withoutCredentials": true
-      }
+      },
+      "channel": "preview"
     },
     "production": {
       "android": {
         "buildType": "app-bundle",
         "credentialsSource": "remote",
         "image": "ubuntu-22.04-jdk-17-ndk-r21e"
-      }
+      },
+      "channel": "production"
     },
     "amazon": {
       "android": {
@@ -37,7 +39,8 @@
         "env": {
           "PLATFORM": "amazon"
         }
-      }
+      },
+      "channel": "amazon"
     }
   },
   "submit": {

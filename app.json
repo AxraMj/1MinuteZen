@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Zonely",
-    "slug": "Zonely",
+    "slug": "zonely",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -36,6 +36,14 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "updates": {
+      "enabled": true,
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/1757f51e-f8d0-4147-9589-2757d14b8841"
+    },
+    "runtimeVersion": {
+      "policy": "sdkVersion"
     },
     "extra": {
       "eas": {
