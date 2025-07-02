@@ -43,7 +43,7 @@ jobs:
       run: npm test -- --passWithNoTests
 
     - name: Login to Expo
-      run: eas login -t ${{ secrets.EXPO_TOKEN }}
+      run: eas login --token="${{ secrets.EXPO_TOKEN }}"
 
     - name: Create and Deploy Update
       run: |
