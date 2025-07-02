@@ -38,15 +38,19 @@ jobs:
       run: npm test -- --passWithNoTests
 
     - name: Build Android
+      env:
+        CI: 1
       run: |
-        yes | npx expo prebuild --platform android --non-interactive
+        npx expo prebuild --platform android
         cd android
         ./gradlew assembleRelease
 
     - name: Build iOS
       if: runner.os == 'macOS'
+      env:
+        CI: 1
       run: |
-        yes | npx expo prebuild --platform ios --non-interactive
+        npx expo prebuild --platform ios
         cd ios
         xcodebuild -workspace 1MinuteZen.xcworkspace -scheme 1MinuteZen -configuration Release
 
