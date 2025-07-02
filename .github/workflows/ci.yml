@@ -12,6 +12,7 @@ jobs:
     env:
       CI: 1
       EXPO_NO_INTERACTIVE: 1
+      NPM_CONFIG_YES: true
 
     steps:
     - uses: actions/checkout@v4
@@ -25,6 +26,7 @@ jobs:
     - name: Install Dependencies
       run: |
         npm install
+        npm install -g eas-cli
         npx expo install --fix
 
     - name: Run ESLint
@@ -42,14 +44,14 @@ jobs:
 
     - name: Build Android
       run: |
-        npx expo prebuild --platform android --no-interactive --clean
+        echo "y" | npx expo prebuild -p android
         cd android
         ./gradlew assembleRelease
 
     - name: Build iOS
       if: runner.os == 'macOS'
       run: |
-        npx expo prebuild --platform ios --no-interactive --clean
+        echo "y" | npx expo prebuild -p ios
         cd ios
         xcodebuild -workspace 1MinuteZen.xcworkspace -scheme 1MinuteZen -configuration Release
 
