@@ -10,9 +10,9 @@ jobs:
   test-and-build:
     runs-on: ubuntu-latest
     env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
       CI: 1
       EXPO_NO_INTERACTIVE: 1
-      NPM_CONFIG_YES: true
 
     steps:
     - uses: actions/checkout@v4
@@ -42,30 +42,15 @@ jobs:
     - name: Run Tests
       run: npm test -- --passWithNoTests
 
-    - name: Build Android
-      run: |
-        echo "y" | npx expo prebuild -p android
-        cd android
-        ./gradlew assembleRelease
+    - name: Login to Expo
+      run: npx eas-cli login --non-interactive --token ${{ secrets.EXPO_TOKEN }}
 
-    - name: Build iOS
+    - name: Build Android Preview
+      run: npx eas build --platform android --profile preview --non-interactive --no-wait
+
+    - name: Build iOS Preview
       if: runner.os == 'macOS'
-      run: |
-        echo "y" | npx expo prebuild -p ios
-        cd ios
-        xcodebuild -workspace 1MinuteZen.xcworkspace -scheme 1MinuteZen -configuration Release
+      run: npx eas build --platform ios --profile preview --non-interactive --no-wait
 
-    - name: Upload Android Build
-      uses: actions/upload-artifact@v4
-      with:
-        name: android-build
-        path: android/app/build/outputs/apk/release/
-        compression-level: 9
-
-    - name: Upload iOS Build
-      if: runner.os == 'macOS'
-      uses: actions/upload-artifact@v4
-      with:
-        name: ios-build
-        path: ios/build/
-        compression-level: 9 
+    - name: Post Setup Node.js
+      run: echo "Build submitted to EAS" 
