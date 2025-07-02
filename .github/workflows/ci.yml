@@ -7,7 +7,7 @@ on:
     branches: [ main, master ]
 
 jobs:
-  test-and-build:
+  test-and-update:
     runs-on: ubuntu-latest
     env:
       EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
@@ -43,14 +43,12 @@ jobs:
       run: npm test -- --passWithNoTests
 
     - name: Login to Expo
-      run: npx eas-cli login --non-interactive --token ${{ secrets.EXPO_TOKEN }}
+      run: eas login -t ${{ secrets.EXPO_TOKEN }}
 
-    - name: Build Android Preview
-      run: npx eas build --platform android --profile preview --non-interactive --no-wait
-
-    - name: Build iOS Preview
-      if: runner.os == 'macOS'
-      run: npx eas build --platform ios --profile preview --non-interactive --no-wait
+    - name: Create and Deploy Update
+      run: |
+        eas update --auto --non-interactive
+        echo "Update deployed successfully!"
 
     - name: Post Setup Node.js
-      run: echo "Build submitted to EAS" 
+      run: echo "Update submitted to EAS" 
