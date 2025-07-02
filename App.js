@@ -102,7 +102,7 @@ function App() {
       <SafeAreaView style={styles.safeArea}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>1MinuteZen</Text>
+          <Text style={styles.title}>Zonely Space</Text>
           <Text style={styles.subtitle}>Mindful breathing for busy minds</Text>
         </View>
 

@@ -15,7 +15,7 @@ export default function PrivacyPolicy({ onClose }) {
       <ScrollView style={styles.content}>
         <Text style={styles.sectionTitle}>Introduction</Text>
         <Text style={styles.text}>
-          1MinuteZen respects your privacy and is committed to protecting your personal data. This privacy policy explains how we handle your data when you use our app.
+          Zonely Space respects your privacy and is committed to protecting your personal data. This privacy policy explains how we handle your data when you use our app.
         </Text>
 
         <Text style={styles.sectionTitle}>Data We Don't Collect</Text>

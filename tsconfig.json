@@ -8,7 +8,7 @@
     "lib": [
       "es2017"
     ],
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "noEmit": true,
     "strict": false,
     "target": "esnext",
@@ -34,5 +34,5 @@
     "**/*.js",
     "**/*.jsx"
   ],
-  "extends": "expo/tsconfig.base"
+  "extends": "expo/tsconfig.base.json"
 }
